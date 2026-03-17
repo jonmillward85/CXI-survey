@@ -1589,7 +1589,7 @@ function setMatrix(mId, itemKey, value, el) {
 // ===== C2 → C3 PIPING =====
 function handleC2Change() {
   const val = answers.c2;
-  if (!val) return;
+  if (!val || val === '__other_pending__') return;
 
   const isOther = val.startsWith('Other: ');
   const pipeLabel = isOther ? null : (Q.c2.shortLabels[val] || val);
