@@ -643,7 +643,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
   <div class="screen" id="screen-13">
     <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
     <div class="q-card" id="qcard-c3">
-      <div class="q-label" id="c3-label">Think about your best <strong id="c3-pipe"></strong> experience from the past 12 months. How much of an impression did it leave?</div>
+      <div class="q-label" id="c3-label">Think about your best <strong>your chosen type</strong> experience from the past 12 months. How much of an impression did it leave?</div>
       <div class="q-hint">Select one</div>
       <ul class="option-list" id="opts-c3"></ul>
     </div>
@@ -1591,24 +1591,24 @@ function handleC2Change() {
   const val = answers.c2;
   if (!val) return;
 
-  let pipeLabel;
-  if (val.startsWith('Other: ')) {
-    // For custom text: use generic wording to avoid unwieldy piped text
-    pipeLabel = 'that type of experience';
+  const isOther = val.startsWith('Other: ');
+  const pipeLabel = isOther ? null : (Q.c2.shortLabels[val] || val);
+
+  // Build the question label — different template for "Other" vs predefined
+  const labelEl = document.getElementById('c3-label');
+  if (isOther) {
+    labelEl.innerHTML = 'Think about your best experience of <strong>the type you just described</strong> from the past 12 months. How much of an impression did it leave?';
   } else {
-    pipeLabel = Q.c2.shortLabels[val] || val;
+    labelEl.innerHTML = `Think about your best <strong>${escHtml(pipeLabel)}</strong> experience from the past 12 months. How much of an impression did it leave?`;
   }
 
-  const pipeEl = document.getElementById('c3-pipe');
-  if (pipeEl) pipeEl.textContent = pipeLabel;
-  buildC3Options(pipeLabel);
+  buildC3Options(pipeLabel, isOther);
 }
 
-function buildC3Options(pipeLabel) {
-  const isGeneric = (pipeLabel === 'that type of experience');
-  const lastOpt = isGeneric
+function buildC3Options(pipeLabel, isOther) {
+  const lastOpt = isOther
     ? 'I haven\'t done that in the past 12 months'
-    : `I haven't been to ${pipeLabel} in the past 12 months`;
+    : `I haven't been to ${pipeLabel || 'your chosen type'} in the past 12 months`;
 
   const opts = [
     'I still think about it regularly',
@@ -1890,7 +1890,7 @@ function init() {
   ['e3','c4','c6','c7','ba4','ba5'].forEach(qId => {
     buildMultiOptions(qId, `opts-${qId}`);
   });
-  buildC3Options('your chosen type');
+  buildC3Options('your chosen type', false);
   rebuildC4b();
   buildMatrix('c1', 'matrix-c1-desktop', 'matrix-c1-mobile');
   buildMatrix('f1', 'matrix-f1-desktop', 'matrix-f1-mobile');
