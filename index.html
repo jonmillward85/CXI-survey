@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consumer Experience Index | CXI</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F7F8FA;
+  --surface: #ffffff;
+  --text: #1A1F36;
+  --muted: #6C7189;
+  --primary: #1A1F36;
+  --primary-hover: #2D3352;
+  --primary-light: #ECEEF5;
+  --accent: #E85D75;
+  --accent-light: #FFF0F2;
+  --highlight: #F4A261;
+  --highlight-light: #FFF8EE;
+  --teal: #2EC4B6;
+  --teal-light: #E8FAF8;
+  --border: #D4D7E0;
+  --error: #E8384F;
+  --success: #2EC4B6;
+  --radius: 10px;
+  --shadow: 0 2px 8px rgba(26,31,54,0.06);
+  --shadow-lg: 0 8px 30px rgba(26,31,54,0.12);
+  --ease: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* Progress */
+.progress-track {
+  position: sticky; top: 0; z-index: 100;
+  width: 100%; height: 5px; background: #E0E2EB;
+  margin-bottom: 20px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--highlight));
+  border-radius: 0 3px 3px 0;
+  transition: width 0.5s ease;
+}
+
+/* Screens */
+.screen { display: none; opacity: 0; transform: translateY(8px); transition: opacity 0.25s ease, transform 0.25s ease; }
+.screen.active { display: block; }
+.screen.visible { opacity: 1; transform: translateY(0); }
+
+/* Typography */
+h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; color: var(--primary); letter-spacing: -0.02em; }
+h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--primary); }
+.subtitle { font-size: 0.95rem; color: var(--text); margin-bottom: 20px; max-width: 600px; line-height: 1.65; }
+
+.step-pill {
+  display: inline-block;
+  font-size: 0.72rem; color: var(--accent); text-transform: uppercase;
+  letter-spacing: 0.1em; font-weight: 800; margin-bottom: 14px;
+  background: var(--accent-light); padding: 5px 14px; border-radius: 20px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 14px 36px; font-size: 1rem; font-weight: 700; font-family: var(--font);
+  border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #D14D65; box-shadow: 0 4px 14px rgba(232,93,117,0.3); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { background: #C4C7D4; cursor: not-allowed; box-shadow: none; transform: none; }
+
+.btn-secondary {
+  background: transparent; color: var(--muted); border: 2px solid var(--border);
+  padding: 12px 24px; font-size: 0.9rem;
+}
+.btn-secondary:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+
+/* Welcome card */
+.welcome-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: var(--shadow-lg);
+  max-width: 580px;
+  overflow: hidden;
+}
+.welcome-gradient {
+  height: 100px;
+  background: linear-gradient(135deg, var(--primary) 0%, #2D3352 40%, var(--accent) 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+.welcome-logo {
+  font-size: 2.2rem; font-weight: 900; color: #fff;
+  letter-spacing: -0.04em;
+}
+.welcome-logo span { color: var(--highlight); }
+.welcome-card-body { padding: 28px 28px 32px; }
+.welcome-card h1 { font-size: 1.5rem; margin-bottom: 16px; }
+
+/* ===== CONTEXT MESSAGES (must-read, not skippable) ===== */
+.context-msg {
+  font-size: 1.02rem;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 22px;
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.context-msg strong { color: var(--accent); }
+.context-msg .context-icon {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+/* Section intro (lighter, for section transitions) */
+.section-intro {
+  font-size: 0.92rem; color: var(--muted);
+  margin-bottom: 16px; line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Question cards */
+.q-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 22px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.q-card.answered { border-color: var(--teal); box-shadow: 0 2px 12px rgba(46,196,182,0.12); }
+.q-card.error-shake { animation: shake 0.35s ease; border-color: var(--error); }
+
+.q-label {
+  font-size: 1.02rem; font-weight: 700; color: var(--text);
+  margin-bottom: 4px; line-height: 1.5;
+}
+.q-label .keyword { color: var(--accent); font-weight: 800; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.q-hint {
+  font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; line-height: 1.5;
+}
+
+/* Radio options */
+.option-list { list-style: none; padding: 0; }
+.option-list li { margin-bottom: 7px; }
+.option-btn {
+  display: flex; align-items: center; width: 100%;
+  padding: 13px 16px; font-size: 0.92rem; font-family: var(--font);
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); cursor: pointer;
+  transition: all 0.15s ease; text-align: left; line-height: 1.45;
+  color: var(--text); font-weight: 500;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+.option-btn.selected {
+  border-color: var(--accent); background: var(--accent-light);
+  font-weight: 700; color: var(--accent);
+}
+.option-btn.selected.advancing { animation: selectPulse 0.5s ease; }
+.option-btn .radio-dot {
+  width: 20px; height: 20px; min-width: 20px;
+  border: 2px solid var(--border); border-radius: 50%;
+  margin-right: 12px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+}
+.option-btn.selected .radio-dot { border-color: var(--accent); }
+.option-btn.selected .radio-dot::after {
+  content: ''; width: 10px; height: 10px;
+  background: var(--accent); border-radius: 50%;
+}
+
+/* Checkbox options */
+.check-btn {
+  display: flex; align-items: flex-start; width: 100%;
+  padding: 13px 16px; font-size: 0.92rem; font-family: var(--font);
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius); cursor: pointer;
+  transition: all 0.15s ease; text-align: left; line-height: 1.45;
+  color: var(--text); font-weight: 500;
+}
+.check-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+.check-btn.selected {
+  border-color: var(--accent); background: var(--accent-light);
+  font-weight: 600; color: var(--accent);
+}
+.check-btn.disabled {
+  opacity: 0.35; cursor: not-allowed;
+  pointer-events: none;
+}
+.check-box {
+  width: 20px; height: 20px; min-width: 20px;
+  border: 2px solid var(--border); border-radius: 5px;
+  margin-right: 12px; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+}
+.check-btn.selected .check-box {
+  border-color: var(--accent); background: var(--accent);
+}
+.check-btn.selected .check-box::after {
+  content: '✓'; color: #fff; font-size: 0.72rem; font-weight: 900;
+}
+
+/* Other / text inputs */
+.other-input {
+  width: 100%; padding: 10px 14px; margin-top: 8px;
+  font-size: 0.9rem; font-family: var(--font);
+  border: 2px solid var(--border); border-radius: var(--radius);
+  outline: none; transition: border-color 0.2s; display: none;
+}
+.other-input.show { display: block; }
+.other-input:focus { border-color: var(--accent); }
+
+.prolific-input {
+  width: 100%; padding: 14px 16px;
+  font-size: 1rem; font-family: var(--font);
+  border: 2px solid var(--border); border-radius: var(--radius);
+  outline: none; transition: border-color 0.2s;
+}
+.prolific-input:focus { border-color: var(--accent); }
+.prolific-input::placeholder { color: #B0B3C2; }
+
+/* Matrix */
+.matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.matrix-table th {
+  padding: 10px 6px; font-weight: 700; text-align: center;
+  color: var(--accent); font-size: 0.75rem; border-bottom: 2px solid var(--border);
+  white-space: normal; word-wrap: break-word; min-width: 60px;
+}
+.matrix-table th:first-child { text-align: left; min-width: 170px; white-space: normal; }
+.matrix-table td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #ECEEF5; }
+.matrix-table td:first-child {
+  text-align: left; font-weight: 600; font-size: 0.85rem; line-height: 1.4;
+}
+.matrix-table tr:hover { background: #FAFBFD; }
+.matrix-table tr.answered-row td:first-child { color: var(--accent); }
+.matrix-radio { width: 22px; height: 22px; cursor: pointer; accent-color: var(--accent); }
+
+/* Mobile matrix */
+.matrix-mobile { display: none; }
+.matrix-mobile-item {
+  background: #F8F9FB; border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 10px;
+}
+.matrix-mobile-item .mm-label {
+  font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;
+  color: var(--text); line-height: 1.4;
+}
+.matrix-mobile-item .mm-options { display: flex; gap: 5px; flex-wrap: wrap; }
+.mm-btn {
+  flex: 1 1 auto; min-width: 0;
+  padding: 9px 6px; font-size: 0.75rem; font-weight: 600;
+  font-family: var(--font); border: 2px solid var(--border);
+  border-radius: 6px; background: var(--surface); color: var(--text);
+  cursor: pointer; transition: all 0.15s ease; text-align: center; line-height: 1.3;
+}
+.mm-btn:hover { border-color: #999; background: #f0f0f0; }
+.mm-btn.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+/* Textarea */
+.q-textarea {
+  width: 100%; min-height: 80px; padding: 12px 14px;
+  font-size: 0.92rem; font-family: var(--font);
+  border: 2px solid var(--border); border-radius: var(--radius);
+  resize: vertical; outline: none; transition: border-color 0.2s;
+}
+.q-textarea:focus { border-color: var(--accent); }
+.q-textarea::placeholder { color: #B0B3C2; }
+
+/* Navigation */
+.nav-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px; gap: 12px;
+}
+.nav-row .validation-msg {
+  font-size: 0.82rem; color: var(--error); font-weight: 600;
+  display: none; text-align: center; flex: 1;
+}
+.nav-row .validation-msg.show { display: block; }
+
+/* Fallback continue for auto-advance screens */
+.nav-row .btn-continue-fallback { display: none; }
+.nav-row .btn-continue-fallback.show { display: inline-flex; }
+
+/* Conditional reveal */
+.conditional-block {
+  max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.35s ease, margin 0.35s ease;
+  margin-top: 0;
+}
+.conditional-block.revealed {
+  max-height: 800px; opacity: 1; margin-top: 16px;
+}
+
+/* C4 confirm row */
+.c4-confirm-row {
+  text-align: center; margin-top: 16px; padding: 16px;
+  background: var(--highlight-light); border: 2px dashed var(--highlight);
+  border-radius: var(--radius); animation: fadeInUp 0.3s ease;
+}
+.c4-confirm-hint {
+  font-size: 0.9rem; color: var(--text); margin-bottom: 10px; font-weight: 600;
+}
+.btn-sm { padding: 10px 24px; font-size: 0.9rem; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Thank you */
+.thankyou-card {
+  max-width: 520px; margin: 0 auto;
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 40px 28px;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.thankyou-card h1 { text-align: center; margin-bottom: 16px; }
+
+.completion-code-box {
+  background: var(--primary-light); border-radius: var(--radius);
+  padding: 16px; margin-top: 16px;
+}
+.completion-code {
+  font-family: 'Courier New', monospace; font-size: 1.5rem; font-weight: 800;
+  letter-spacing: 0.15em; color: var(--accent); user-select: all; cursor: pointer;
+  padding: 8px; background: var(--surface); border-radius: 6px; border: 2px dashed var(--accent);
+}
+
+/* Progress encouragement */
+.progress-note {
+  font-size: 0.8rem; color: var(--accent); font-weight: 700;
+  text-align: center; margin-bottom: 14px; opacity: 0;
+  animation: fadeInUp 0.4s ease 0.1s both;
+}
+
+/* Confetti canvas */
+#confetti-canvas {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 999;
+}
+
+/* Check circle */
+.check-circle {
+  width: 64px; height: 64px; margin: 0 auto 16px;
+  background: var(--teal); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s both;
+}
+.check-circle svg {
+  width: 32px; height: 32px; stroke: #fff; stroke-width: 3;
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
+}
+.check-circle svg .check-path {
+  stroke-dasharray: 40; stroke-dashoffset: 40;
+  animation: drawCheck 0.4s ease 0.7s forwards;
+}
+
+/* Animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes selectPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Staggered entrance */
+.screen.visible .q-card,
+.screen.visible .context-msg {
+  animation: fadeInUp 0.35s ease both;
+}
+.screen.visible .q-card:nth-child(1),
+.screen.visible .context-msg { animation-delay: 0.05s; }
+.screen.visible .q-card:nth-child(2) { animation-delay: 0.12s; }
+.screen.visible .q-card:nth-child(3) { animation-delay: 0.19s; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .wrap { padding: 14px 10px 60px; }
+  h1 { font-size: 1.25rem; }
+  .q-card { padding: 18px 16px; }
+  .option-btn { padding: 11px 14px; font-size: 0.88rem; }
+  .nav-row { flex-wrap: wrap; }
+  .context-msg { font-size: 0.95rem; padding: 16px 18px; }
+}
+@media (max-width: 768px) {
+  .matrix-desktop { display: none; }
+  .matrix-mobile { display: block; }
+}
+@media (min-width: 769px) {
+  .matrix-mobile { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="progress-track">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+
+  <!-- ========== SCREEN 0: WELCOME ========== -->
+  <div class="screen active" id="screen-0">
+    <div class="welcome-card">
+      <div class="welcome-gradient">
+        <div class="welcome-logo">CX<span>I</span></div>
+      </div>
+      <div class="welcome-card-body">
+        <h1>The Consumer Experience Index</h1>
+        <div class="context-msg" style="margin-top: 16px;">
+          <span class="context-icon">&#9432;</span>
+          This survey is about <strong>live, in-person experiences</strong> &mdash; things you physically go out and do, like attending concerts, sports events, festivals, theatre, food events, or going on trips and holidays.<br><br>
+          We're interested in how important these kinds of activities are in your life. There are no right or wrong answers &mdash; we just want to know what you think.
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="goToScreen(1)">Let's get started &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 1: PROLIFIC ID ========== -->
+  <div class="screen" id="screen-1">
+    <div class="q-card" id="qcard-prolific">
+      <div class="q-label">Please enter your Prolific ID</div>
+      <div class="q-hint">You can find this on your Prolific dashboard. This is required to validate your submission.</div>
+      <input type="text" class="prolific-input" id="prolific-input" placeholder="e.g. 5f3e2a1b8c7d6e4f" autocomplete="off">
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-1">Please enter your Prolific ID to continue.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(1)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 2: D1 (income) — auto-advance ========== -->
+  <div class="screen" id="screen-2">
+    <div class="step-pill">Section 1 of 6 &mdash; About You</div>
+    <div class="q-card" id="qcard-d1">
+      <div class="q-label">What is your approximate annual household income, <span class="keyword">before tax</span>?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-d1"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-2" onclick="tryAdvance(2)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 3: D2 (household) — auto-advance ========== -->
+  <div class="screen" id="screen-3">
+    <div class="step-pill">Section 1 of 6 &mdash; About You</div>
+    <div class="q-card" id="qcard-d2">
+      <div class="q-label">Which of the following best describes your living situation?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-d2"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-3" onclick="tryAdvance(3)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 4: E1 (happiest memory) — auto-advance ========== -->
+  <div class="screen" id="screen-4">
+    <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
+    <div class="context-msg">
+      <span class="context-icon">&#9432;</span>
+      A reminder: this survey is about <strong>live, in-person experiences</strong> &mdash; things you physically go out and do, like attending concerts, sports events, festivals, theatre, food events, or going on trips and holidays.
+    </div>
+    <div class="q-card" id="qcard-e1">
+      <div class="q-label">Think about your <span class="keyword">single happiest memory</span> from the past 12 months. Which of the following best describes what it was?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-e1"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-4" onclick="tryAdvance(4)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 5: E2 (spending preference) — auto-advance ========== -->
+  <div class="screen" id="screen-5">
+    <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
+    <div class="q-card" id="qcard-e2">
+      <div class="q-label">When you have spare money to treat yourself, do you generally prefer to spend it on <strong>doing things</strong> (e.g. going out, events, trips) or <strong>buying things</strong> (e.g. products, clothes, gadgets)?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-e2"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-5" onclick="tryAdvance(5)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 6: E3 (essentials) — multi, Continue ========== -->
+  <div class="screen" id="screen-6">
+    <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
+    <div class="q-card" id="qcard-e3">
+      <div class="q-label">Which of the following, if any, do you personally consider <span class="keyword">essential</span> to your quality of life &mdash; not just nice to have, but something you'd <span class="keyword">genuinely miss</span>?</div>
+      <div class="q-hint">Tick all that apply</div>
+      <ul class="option-list" id="opts-e3"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-6">Please select at least one option.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(6)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 7: E4 (sacrifice) — auto-advance ========== -->
+  <div class="screen" id="screen-7">
+    <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
+    <div class="q-card" id="qcard-e4">
+      <div class="q-label">Which <span class="keyword">ONE</span> of the following would you be <span class="keyword">most willing to give up</span> for a month to free up money for a live event or experience?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-e4"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-7" onclick="tryAdvance(7)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 8: E5 (screen break) — auto-advance ========== -->
+  <div class="screen" id="screen-8">
+    <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
+    <div class="q-card" id="qcard-e5">
+      <div class="q-label">How often, if ever, do you <span class="keyword">deliberately</span> seek out in-person activities or events because you want a break from screens?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-e5"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-8" onclick="tryAdvance(8)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 9: E6 (missing from life) — auto-advance ========== -->
+  <div class="screen" id="screen-9">
+    <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
+    <div class="q-card" id="qcard-e6">
+      <div class="q-label">To what extent do you agree or disagree: <em>&ldquo;I'd feel like <span class="keyword">something important was missing</span> from my life if I could no longer go to live events and experiences.&rdquo;</em></div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-e6"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-9" onclick="tryAdvance(9)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 10: E7 (AI value) — auto-advance ========== -->
+  <div class="screen" id="screen-10">
+    <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
+    <div class="q-card" id="qcard-e7">
+      <div class="q-label">With more entertainment now created or influenced by AI, do you think being at a live, in-person event has become&hellip;</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-e7"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-10" onclick="tryAdvance(10)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 11: C1 (frequency matrix) — Continue ========== -->
+  <div class="screen" id="screen-11">
+    <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
+    <p class="section-intro">Now some questions about the things you've actually done and what you value about going out.</p>
+    <div class="q-card" id="qcard-c1">
+      <div class="q-label">In the past <span class="keyword">12 months</span>, roughly how many times have you done each of the following?</div>
+      <div class="q-hint">One answer per row</div>
+      <div class="matrix-desktop matrix-wrap" id="matrix-c1-desktop"></div>
+      <div class="matrix-mobile" id="matrix-c1-mobile"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-11">Please answer all rows to continue.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(11)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 12: C2 (most important type) — auto-advance ========== -->
+  <div class="screen" id="screen-12">
+    <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
+    <div class="q-card" id="qcard-c2">
+      <div class="q-label">Other than holidays and travel, which <span class="keyword">ONE</span> type of live experience matters most to you personally?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-c2"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-12" onclick="tryAdvance(12)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 13: C3 (impression — piped from C2) — auto-advance ========== -->
+  <div class="screen" id="screen-13">
+    <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
+    <div class="q-card" id="qcard-c3">
+      <div class="q-label" id="c3-label">Think about your best <strong id="c3-pipe"></strong> experience from the past 12 months. How much of an impression did it leave?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-c3"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-13" onclick="tryAdvance(13)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 14: C4 + C4b (motivations best-worst) — Continue ========== -->
+  <div class="screen" id="screen-14">
+    <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
+    <div class="q-card" id="qcard-c4">
+      <div class="q-label">When you think about what makes going out to a live event or experience worthwhile, which of these matter <span class="keyword">most</span> to you?</div>
+      <div class="q-hint">Pick up to <strong>3</strong> &mdash; <span id="c4-count">0</span> of 3 selected</div>
+      <ul class="option-list" id="opts-c4"></ul>
+    </div>
+
+    <div id="c4-confirm-row" class="c4-confirm-row" style="display:none;">
+      <p class="c4-confirm-hint">Happy with your choices? You can pick up to 3 above.</p>
+      <button class="btn btn-primary btn-sm" id="c4-reveal-btn" onclick="revealC4b()">Next question &rarr;</button>
+    </div>
+
+    <div class="conditional-block" id="c4b-block">
+      <div class="q-card" id="qcard-c4b">
+        <div class="q-label">And which ONE of the remaining options matters <span class="keyword">least</span> to you?</div>
+        <div class="q-hint">Select one</div>
+        <ul class="option-list" id="opts-c4b"></ul>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-14">Please answer both questions to continue.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(14)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 15: C5 (live vs streamed) — auto-advance ========== -->
+  <div class="screen" id="screen-15">
+    <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
+    <div class="q-card" id="qcard-c5">
+      <div class="q-label">Imagine you could either go to a live event <span class="keyword">in person</span> OR watch it <span class="keyword">streamed from home</span> in perfect quality, both for <strong>free</strong>. Which would you choose?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-c5"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-15" onclick="tryAdvance(15)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 16: C6 (barriers) — multi, Continue ========== -->
+  <div class="screen" id="screen-16">
+    <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
+    <div class="q-card" id="qcard-c6">
+      <div class="q-label">What, if anything, <span class="keyword">stops you</span> from going to more live events and experiences?</div>
+      <div class="q-hint">Pick up to <strong>3</strong> &mdash; <span id="c6-count">0</span> of 3 selected</div>
+      <ul class="option-list" id="opts-c6"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-16">Please select at least one option.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(16)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 17: C7 (cost management) — multi, Continue ========== -->
+  <div class="screen" id="screen-17">
+    <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
+    <div class="q-card" id="qcard-c7">
+      <div class="q-label">In the past 12 months, have you done any of the following to manage the cost of live events and experiences?</div>
+      <div class="q-hint">Tick all that apply</div>
+      <ul class="option-list" id="opts-c7"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-17">Please select at least one option.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(17)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 18: BA0 (brand activation gate) — auto-advance ========== -->
+  <div class="screen" id="screen-18">
+    <div class="step-pill">Section 4 of 6 &mdash; Brands at Live Events</div>
+    <div class="context-msg">
+      <span class="context-icon">&#9432;</span>
+      At live events like concerts, festivals and sports matches, brands sometimes set up their own free activities or experiences nearby &mdash; for example, a drinks brand with a pop-up bar, a tech company running a gaming zone, or a sponsor's interactive stand.<br><br>
+      <strong>The next few questions are about these kinds of brand experiences.</strong>
+    </div>
+    <div class="q-card" id="qcard-ba0">
+      <div class="q-label">In the past 12 months, have you <span class="keyword">taken part in or visited</span> anything like this at a live event?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-ba0"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-18" onclick="tryAdvance(18)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 19: BA1 (event type) — auto-advance [4A path] ========== -->
+  <div class="screen" id="screen-19">
+    <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
+    <div class="context-msg" style="border-color: var(--highlight); font-size: 0.95rem;">
+      <span class="context-icon">&#128161;</span>
+      Think about the <strong>most recent time</strong> you took part in a brand experience or activation at a live event.
+    </div>
+    <div class="q-card" id="qcard-ba1">
+      <div class="q-label">What type of event was it at?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-ba1"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-19" onclick="tryAdvance(19)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 20: BA2 (brand awareness) — auto-advance [4A] ========== -->
+  <div class="screen" id="screen-20">
+    <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
+    <div class="q-card" id="qcard-ba2">
+      <div class="q-label">Thinking about the brand behind that experience &mdash; which of the following best describes the situation?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-ba2"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-20" onclick="tryAdvance(20)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 21: BA3 (brand sentiment) — auto-advance [4A] ========== -->
+  <div class="screen" id="screen-21">
+    <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
+    <div class="q-card" id="qcard-ba3">
+      <div class="q-label">How did taking part affect how you feel about that brand?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-ba3"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-21" onclick="tryAdvance(21)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 22: BA4 (actions) — multi, Continue [4A] ========== -->
+  <div class="screen" id="screen-22">
+    <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
+    <div class="q-card" id="qcard-ba4">
+      <div class="q-label">As a result of that brand experience, did you do any of the following?</div>
+      <div class="q-hint">Tick all that apply</div>
+      <ul class="option-list" id="opts-ba4"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-22">Please select at least one option.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(22)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 23: BA5 (best thing) — multi max 2, Continue [4A] ========== -->
+  <div class="screen" id="screen-23">
+    <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
+    <div class="q-card" id="qcard-ba5">
+      <div class="q-label">What, if anything, was the best thing about the brand experience?</div>
+      <div class="q-hint">Pick up to <strong>2</strong> &mdash; <span id="ba5-count">0</span> of 2 selected</div>
+      <ul class="option-list" id="opts-ba5"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-23">Please select at least one option.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(23)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 24: BA6 (in-store) — auto-advance [4A] ========== -->
+  <div class="screen" id="screen-24">
+    <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
+    <div class="q-card" id="qcard-ba6">
+      <div class="q-label">And thinking about shopping &mdash; have you ever been drawn in by a brand experience or demonstration in a physical store that made you buy something you hadn't planned to?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-ba6"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-24" onclick="tryAdvance(24)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 25: BH1 (hypothetical) — auto-advance [4B path] ========== -->
+  <div class="screen" id="screen-25">
+    <div class="step-pill">Section 4 of 6 &mdash; Brands at Live Events</div>
+    <div class="q-card" id="qcard-bh1">
+      <div class="q-label">Imagine you're at a live event &mdash; like a sports match, concert, or festival &mdash; and a brand has set up a free interactive experience nearby, with activities, giveaways, and things to try. Which best describes how you'd react?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-bh1"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-25" onclick="tryAdvance(25)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 26: L1 (loneliness) — auto-advance ========== -->
+  <div class="screen" id="screen-26">
+    <div class="progress-note">Nearly done &mdash; just a few more questions!</div>
+    <div class="step-pill">Section 5 of 6 &mdash; How You Feel Day to Day</div>
+    <p class="section-intro">The next few questions are about how you feel in everyday life.</p>
+    <div class="q-card" id="qcard-l1">
+      <div class="q-label">How often do you feel lonely?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-l1"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-26" onclick="tryAdvance(26)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 27: L2 (connection) — auto-advance ========== -->
+  <div class="screen" id="screen-27">
+    <div class="step-pill">Section 5 of 6 &mdash; How You Feel Day to Day</div>
+    <div class="q-card" id="qcard-l2">
+      <div class="q-label">Have you ever <span class="keyword">deliberately</span> gone to a live event or experience because you wanted to feel more connected to other people?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-l2"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-27" onclick="tryAdvance(27)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 28: L3 (solo attendance) — auto-advance ========== -->
+  <div class="screen" id="screen-28">
+    <div class="step-pill">Section 5 of 6 &mdash; How You Feel Day to Day</div>
+    <div class="q-card" id="qcard-l3">
+      <div class="q-label">Have you gone to a live event or experience <span class="keyword">on your own</span> in the past 12 months?</div>
+      <div class="q-hint">Select one</div>
+      <ul class="option-list" id="opts-l3"></ul>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary btn-continue-fallback" id="continue-28" onclick="tryAdvance(28)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 29: F1 (future intent matrix) — Continue ========== -->
+  <div class="screen" id="screen-29">
+    <div class="step-pill">Section 6 of 6 &mdash; Looking Ahead</div>
+    <p class="section-intro">Last section &mdash; you're nearly finished!</p>
+    <div class="q-card" id="qcard-f1">
+      <div class="q-label">Over the <span class="keyword">next 12 months</span>, do you expect to do each of the following more often, less often, or about the same as the past 12 months?</div>
+      <div class="q-hint">One answer per row</div>
+      <div class="matrix-desktop matrix-wrap" id="matrix-f1-desktop"></div>
+      <div class="matrix-mobile" id="matrix-f1-mobile"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span class="validation-msg" id="val-29">Please answer all rows to continue.</span>
+      <button class="btn btn-primary" onclick="tryAdvance(29)">Continue &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 30: F2 (open text) — optional ========== -->
+  <div class="screen" id="screen-30">
+    <div class="step-pill">Section 6 of 6 &mdash; Looking Ahead</div>
+    <div class="q-card" id="qcard-f2">
+      <div class="q-label">Finally, is there anything else you'd like to share about the role of live events and experiences in your life?</div>
+      <div class="q-hint">Optional &mdash; feel free to skip this</div>
+      <textarea class="q-textarea" id="f2-text" placeholder="Anything you'd like to add..."></textarea>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()">&larr; Back</button>
+      <span></span>
+      <button class="btn btn-primary" onclick="tryAdvance(30)">Finish &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 31: THANK YOU ========== -->
+  <div class="screen" id="screen-31">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="thankyou-card">
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24"><path class="check-path" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h1>Thank you for taking part</h1>
+      <p class="subtitle" style="text-align: center; margin-bottom: 16px;">
+        Your answers will contribute to the Consumer Experience Index &mdash; a study exploring how the British public values live, in-person experiences.
+      </p>
+      <div class="completion-code-box">
+        <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 6px;">Your completion code:</p>
+        <div class="completion-code" id="completion-code">XXXXXXXX</div>
+        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 8px;">Copy this code, then click below to return to Prolific.</p>
+      </div>
+      <a href="https://app.prolific.com/submissions/complete?cc=XXXXXXXX" target="_blank" class="btn btn-primary" id="prolific-return-btn" style="margin-top: 16px; text-decoration: none; width: 100%; text-align: center;">
+        Return to Prolific &rarr;
+      </a>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 20px;">
+        The findings will be published later this year.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== CONFIG =====
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyzXOVp8Dqtie8DzzUaE66DDbb9-fNINuJVIVncLn95yXJ5Gwo9enEWRV0-xCVj5Aq3hg/exec';
+const TOTAL_SCREENS = 32; // 0-31
+const AUTO_ADVANCE_DELAY = 500;
+
+// ===== QUESTION DATA =====
+const Q = {
+  d1: {
+    type: 'radio', options: [
+      'Under £20,000',
+      '£20,000 – £34,999',
+      '£35,000 – £49,999',
+      '£50,000 – £74,999',
+      '£75,000 – £99,999',
+      '£100,000 or more',
+      'Prefer not to say'
+    ]
+  },
+  d2: {
+    type: 'radio', options: [
+      'I live alone',
+      'I live with a partner or spouse (no children under 18 at home)',
+      'I live with a partner or spouse and at least one child under 18',
+      'I\'m a single parent with at least one child under 18',
+      'I live with my parents or other family members',
+      'I share with housemates or flatmates',
+      'Other'
+    ]
+  },
+  e1: {
+    type: 'radio',
+    randomise: [0, 4],
+    options: [
+      'Something I went out and did – e.g. a trip, event, night out, or day out',
+      'Quality time spent with people at home',
+      'A personal achievement – e.g. at work, with my health, or learning something new',
+      'Something I bought or received',
+      'Something I watched, read, or played at home',
+      'Something else'
+    ]
+  },
+  e2: {
+    type: 'radio', options: [
+      'I strongly prefer spending on doing things',
+      'I slightly prefer spending on doing things',
+      'No particular preference',
+      'I slightly prefer spending on buying things',
+      'I strongly prefer spending on buying things'
+    ]
+  },
+  e3: {
+    type: 'multi',
+    randomise: [0, 7],
+    exclusive: 'None of these – they\'re all nice-to-haves',
+    options: [
+      'Going on holidays or trips away',
+      'Eating out or going to food and drink events',
+      'Going to live music – concerts, gigs, or festivals',
+      'Going to live sport',
+      'Going to the cinema',
+      'Going to theatre, comedy, or arts events',
+      'Going to festivals or large outdoor events',
+      'Exercise or gym membership',
+      'None of these – they\'re all nice-to-haves'
+    ]
+  },
+  e4: {
+    type: 'radio',
+    randomise: [0, 3],
+    options: [
+      'A streaming subscription (e.g. Netflix, Spotify, Disney+)',
+      'Ordering takeaway food',
+      'Buying new clothes or accessories',
+      'A phone or tech upgrade I\'d been planning',
+      'I wouldn\'t give anything up for a live event',
+      'This doesn\'t apply to me – I can comfortably afford live events without trade-offs'
+    ]
+  },
+  e5: {
+    type: 'radio', options: [
+      'Regularly',
+      'Sometimes',
+      'Rarely',
+      'Never',
+      'I don\'t really think about it that way'
+    ]
+  },
+  e6: {
+    type: 'radio', options: [
+      'Strongly agree',
+      'Slightly agree',
+      'Neither agree nor disagree',
+      'Slightly disagree',
+      'Strongly disagree'
+    ]
+  },
+  e7: {
+    type: 'radio', options: [
+      'Much more valuable than before',
+      'Somewhat more valuable than before',
+      'About the same as before',
+      'Somewhat less valuable than before',
+      'Much less valuable than before',
+      'I haven\'t really thought about this'
+    ]
+  },
+  c2: {
+    type: 'radio',
+    randomise: [0, 4],
+    hasOther: 5,
+    options: [
+      'Live music (concerts, gigs, festivals)',
+      'Live sport (at a stadium, arena, or racecourse)',
+      'Theatre, comedy, or performing arts',
+      'Food or drink events (food festivals, pop-up dining, tasting events)',
+      'Museums, galleries, or exhibitions',
+      'Something else (please specify)',
+      'None of these is particularly important to me'
+    ],
+    shortLabels: {
+      'Live music (concerts, gigs, festivals)': 'live music',
+      'Live sport (at a stadium, arena, or racecourse)': 'live sport',
+      'Theatre, comedy, or performing arts': 'theatre, comedy, or arts',
+      'Food or drink events (food festivals, pop-up dining, tasting events)': 'food or drink events',
+      'Museums, galleries, or exhibitions': 'museums, galleries, or exhibitions'
+    }
+  },
+  c3: {
+    type: 'radio', options: [] // built dynamically
+  },
+  c4: {
+    type: 'multi', max: 3, randomise: [0, 7],
+    options: [
+      'Making memories I\'ll look back on',
+      'Spending time with friends or family',
+      'The live atmosphere – the buzz, the noise, the energy of being there',
+      'Feeling part of a community – sharing the moment with everyone there',
+      'A break from my normal routine',
+      'The excitement and thrill of it',
+      'Trying or discovering something new',
+      'Having something to post or share on social media'
+    ]
+  },
+  c4b: {
+    type: 'radio', options: [] // built dynamically from c4's order minus selected
+  },
+  c5: {
+    type: 'radio', options: [
+      'I\'d much rather be there in person',
+      'I\'d slightly prefer being there in person',
+      'It would depend on the event',
+      'I\'d slightly prefer watching from home',
+      'I\'d much rather watch from home'
+    ]
+  },
+  c6: {
+    type: 'multi', max: 3,
+    randomise: [0, 7],
+    options: [
+      'Cost – tickets, travel, food and drink add up',
+      'Hard to find the time',
+      'No one to go with',
+      'I don\'t know what\'s available near me',
+      'Not worth the hassle – queues, crowds, travel',
+      'I have a health condition, disability, or accessibility need that makes it difficult',
+      'Childcare or caring responsibilities',
+      'I have pets and it\'s hard to leave them for a full day or overnight',
+      'I already go to as many as I want',
+      'Not really my thing – I prefer other ways to spend my time'
+    ]
+  },
+  c7: {
+    type: 'multi',
+    randomise: [0, 5],
+    exclusive: 'None of these – I haven\'t changed how I manage event costs',
+    options: [
+      'Bought cheaper tickets (e.g. moved from premium to standard, or from seated to standing)',
+      'Gone to fewer events but spent more on each one',
+      'Switched to cheaper alternatives (e.g. smaller gigs instead of arena shows, UK holidays instead of abroad)',
+      'Used a payment plan or buy-now-pay-later to spread the cost of tickets',
+      'Gone to more free events or activities instead of paid ones',
+      'Shared costs more (e.g. splitting travel, accommodation, or group tickets)',
+      'None of these – I haven\'t changed how I manage event costs'
+    ]
+  },
+  ba0: {
+    type: 'radio', options: ['Yes', 'No', 'Not sure']
+  },
+  ba1: {
+    type: 'radio', randomise: [0, 3],
+    options: [
+      'A music festival or concert',
+      'A sports event',
+      'A food or drink event',
+      'A shopping or retail event',
+      'Something else'
+    ]
+  },
+  ba2: {
+    type: 'radio', options: [
+      'I already knew the brand and knew about the activation beforehand',
+      'I already knew the brand but came across the activation by chance',
+      'I hadn\'t heard of the brand before'
+    ]
+  },
+  ba3: {
+    type: 'radio', options: [
+      'Much more positive about the brand',
+      'Somewhat more positive',
+      'No change – I feel the same',
+      'Somewhat more negative',
+      'Much more negative'
+    ]
+  },
+  ba4: {
+    type: 'multi', randomise: [0, 4],
+    exclusive: 'None of the above',
+    options: [
+      'Told friends or family about it',
+      'Posted about it or shared it on social media',
+      'Looked up the brand online afterwards',
+      'Bought something from that brand (at the event or later)',
+      'Started following the brand on social media',
+      'None of the above'
+    ]
+  },
+  ba5: {
+    type: 'multi', max: 2, randomise: [0, 5],
+    exclusive: 'Nothing stood out – it was forgettable',
+    options: [
+      'It was fun or entertaining',
+      'I got free samples, products, or giveaways',
+      'It felt relevant to my interests',
+      'It added something to the main event I was at',
+      'It felt exclusive or special – not something I\'d get elsewhere',
+      'It was easy to take part in – no pressure or hard sell',
+      'Nothing stood out – it was forgettable'
+    ]
+  },
+  ba6: {
+    type: 'radio', options: [
+      'Yes – more than once',
+      'Yes – once',
+      'No',
+      'I rarely shop in physical stores'
+    ]
+  },
+  bh1: {
+    type: 'radio', options: [
+      'I\'d make a point of checking it out',
+      'I\'d have a look if I happened to pass by',
+      'I\'d probably not bother',
+      'I\'d find it annoying or out of place'
+    ]
+  },
+  l1: {
+    type: 'radio', options: [
+      'Often or always',
+      'Some of the time',
+      'Occasionally',
+      'Hardly ever',
+      'Never'
+    ]
+  },
+  l2: { type: 'radio', options: ['Yes', 'No'] },
+  l3: {
+    type: 'radio', options: [
+      'Yes – I enjoy going to things on my own sometimes',
+      'Yes – but mainly because I couldn\'t find anyone to go with',
+      'No – I\'d only go with other people',
+      'No – I haven\'t been to any live events in the past 12 months'
+    ]
+  }
+};
+
+// Matrix definitions
+const MATRICES = {
+  c1: {
+    scale: ['Never', 'Once', '2–3 times', '4 or more'],
+    randomise: true,
+    items: [
+      { key: 'live_music', label: 'Went to a live music event (concert, gig, or music festival)' },
+      { key: 'live_sport', label: 'Went to a live sports event (at a stadium, arena, or racecourse)' },
+      { key: 'holiday', label: 'Went on a holiday or trip away from home (UK or abroad)' },
+      { key: 'theatre', label: 'Went to the theatre, a comedy show, or a performing arts event' },
+      { key: 'food_drink', label: 'Went to a food or drink event (food festival, pop-up dining, tasting event)' },
+      { key: 'museum', label: 'Visited a museum, gallery, or exhibition' },
+      { key: 'cinema', label: 'Went to the cinema' }
+    ]
+  },
+  f1: {
+    scale: ['More', 'About the same', 'Less'],
+    randomise: true,
+    items: [
+      { key: 'live_music', label: 'Go to live music (concerts, gigs, festivals)' },
+      { key: 'live_sport', label: 'Go to live sport' },
+      { key: 'holidays', label: 'Go on holidays and trips' },
+      { key: 'food_drink', label: 'Go to food or drink events' },
+      { key: 'theatre', label: 'Go to theatre, comedy, or arts events' }
+    ]
+  }
+};
+
+// Screen → question mapping for auto-advance
+const AUTO_SCREENS = {
+  2: 'd1', 3: 'd2', 4: 'e1', 5: 'e2', 7: 'e4', 8: 'e5', 9: 'e6', 10: 'e7',
+  12: 'c2', 13: 'c3', 15: 'c5',
+  18: 'ba0', 19: 'ba1', 20: 'ba2', 21: 'ba3', 24: 'ba6', 25: 'bh1',
+  26: 'l1', 27: 'l2', 28: 'l3'
+};
+
+// ===== STATE =====
+const answers = {};
+const sessionId = Date.now() + '-' + Math.random().toString(36).substr(2, 8);
+let currentScreen = 0;
+let startTime = null;
+const history = [0];
+const matrixOrders = {};
+const randomisedOrders = {};
+let autoAdvanceTimer = null;
+
+// ===== UTILITY =====
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escJs(s) { return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+// ===== BUILD OPTIONS =====
+function buildRadioOptions(qId, containerId) {
+  const q = Q[qId];
+  const container = document.getElementById(containerId);
+  if (!container || !q) return;
+  let opts = [...q.options];
+  if (q.randomise) {
+    const [start, end] = q.randomise;
+    const toRandomise = opts.slice(start, end + 1);
+    const fixedEnd = opts.slice(end + 1);
+    opts = [...shuffle(toRandomise), ...fixedEnd];
+  }
+  randomisedOrders[qId] = opts;
+
+  let html = '';
+  opts.forEach((opt) => {
+    const isOtherOpt = (q.hasOther !== undefined && opt === q.options[q.hasOther]);
+    if (isOtherOpt) {
+      html += `
+        <li><button class="option-btn" data-q="${qId}" data-val="${escHtml(opt)}" data-other="true" onclick="selectRadio('${qId}', this, true)">
+          <span class="radio-dot"></span>${escHtml(opt)}
+        </button>
+        <input type="text" class="other-input" id="other-${qId}" placeholder="Keep it short, e.g. 'gaming events'" maxlength="40" oninput="updateOtherRadio('${qId}')"></li>`;
+    } else {
+      html += `
+        <li><button class="option-btn" data-q="${qId}" data-val="${escHtml(opt)}" onclick="selectRadio('${qId}', this)">
+          <span class="radio-dot"></span>${escHtml(opt)}
+        </button></li>`;
+    }
+  });
+  container.innerHTML = html;
+}
+
+function buildMultiOptions(qId, containerId) {
+  const q = Q[qId];
+  const container = document.getElementById(containerId);
+  if (!container || !q) return;
+  let opts = [...q.options];
+  if (q.randomise) {
+    const [start, end] = q.randomise;
+    const toRandomise = opts.slice(start, end + 1);
+    const fixedEnd = opts.slice(end + 1);
+    opts = [...shuffle(toRandomise), ...fixedEnd];
+  }
+  randomisedOrders[qId] = opts;
+  renderMultiButtons(qId, containerId, opts);
+}
+
+function renderMultiButtons(qId, containerId, opts) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = opts.map(opt => `
+    <li><button class="check-btn" data-q="${qId}" data-val="${escHtml(opt)}" onclick="toggleMulti('${qId}', this)">
+      <span class="check-box"></span><span>${escHtml(opt)}</span>
+    </button></li>
+  `).join('');
+}
+
+function buildMatrix(mId, desktopId, mobileId) {
+  const m = MATRICES[mId];
+  let items = [...m.items];
+  if (m.randomise) items = shuffle(items);
+  matrixOrders[mId] = items;
+
+  let thead = '<tr><th></th>' + m.scale.map(s => `<th>${escHtml(s)}</th>`).join('') + '</tr>';
+  let tbody = items.map(item => {
+    let cells = m.scale.map(s =>
+      `<td><input type="radio" class="matrix-radio" name="mx-${mId}-${item.key}" value="${escHtml(s)}" onclick="setMatrix('${mId}','${item.key}','${escJs(s)}',this)"></td>`
+    ).join('');
+    return `<tr id="mrow-${mId}-${item.key}"><td>${escHtml(item.label)}</td>${cells}</tr>`;
+  }).join('');
+  const dEl = document.getElementById(desktopId);
+  if (dEl) dEl.innerHTML = `<table class="matrix-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+
+  let mobile = items.map(item => {
+    let btns = m.scale.map(s =>
+      `<button class="mm-btn" onclick="setMatrix('${mId}','${item.key}','${escJs(s)}',this)">${escHtml(s)}</button>`
+    ).join('');
+    return `<div class="matrix-mobile-item" id="mm-${mId}-${item.key}"><div class="mm-label">${escHtml(item.label)}</div><div class="mm-options">${btns}</div></div>`;
+  }).join('');
+  const mEl = document.getElementById(mobileId);
+  if (mEl) mEl.innerHTML = mobile;
+}
+
+// ===== HANDLERS =====
+function selectRadio(qId, btn, isOther) {
+  if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+
+  const card = btn.closest('.q-card');
+  card.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected', 'advancing'));
+  btn.classList.add('selected');
+
+  if (isOther) {
+    const otherInput = document.getElementById(`other-${qId}`);
+    otherInput.classList.add('show');
+    otherInput.focus();
+    answers[qId] = '__other_pending__';
+    card.classList.remove('answered');
+    showFallbackContinue(qId);
+  } else {
+    const otherInput = document.getElementById(`other-${qId}`);
+    if (otherInput) { otherInput.classList.remove('show'); otherInput.value = ''; }
+    answers[qId] = btn.dataset.val;
+    card.classList.add('answered');
+    card.classList.remove('error-shake');
+
+    const screenForQ = Object.keys(AUTO_SCREENS).find(s => AUTO_SCREENS[s] === qId);
+    if (screenForQ) {
+      btn.classList.add('advancing');
+      autoAdvanceTimer = setTimeout(() => {
+        tryAdvance(parseInt(screenForQ));
+      }, AUTO_ADVANCE_DELAY);
+    }
+  }
+
+  if (qId === 'c2') handleC2Change();
+}
+
+function showFallbackContinue(qId) {
+  const screenForQ = Object.keys(AUTO_SCREENS).find(s => AUTO_SCREENS[s] === qId);
+  if (screenForQ) {
+    const btn = document.getElementById(`continue-${screenForQ}`);
+    if (btn) btn.classList.add('show');
+  }
+}
+
+function updateOtherRadio(qId) {
+  const input = document.getElementById(`other-${qId}`);
+  if (input) {
+    const val = input.value.trim();
+    if (val) {
+      answers[qId] = 'Other: ' + val;
+      const card = input.closest('.q-card');
+      if (card) card.classList.add('answered');
+    } else {
+      answers[qId] = '__other_pending__';
+      const card = input.closest('.q-card');
+      if (card) card.classList.remove('answered');
+    }
+  }
+}
+
+function toggleMulti(qId, btn) {
+  const q = Q[qId];
+  if (!answers[qId]) answers[qId] = [];
+
+  const val = btn.dataset.val;
+  const isExclusive = (q.exclusive && val === q.exclusive);
+
+  if (btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    answers[qId] = answers[qId].filter(v => v !== val);
+    // If deselecting exclusive, re-enable all others
+    if (isExclusive) {
+      btn.closest('.q-card').querySelectorAll('.check-btn').forEach(b => b.classList.remove('disabled'));
+    }
+  } else {
+    if (isExclusive) {
+      // Select exclusive: deselect + grey out all others
+      const card = btn.closest('.q-card');
+      card.querySelectorAll('.check-btn').forEach(b => {
+        b.classList.remove('selected');
+        if (b !== btn) b.classList.add('disabled');
+      });
+      answers[qId] = [val];
+      btn.classList.add('selected');
+      btn.classList.remove('disabled');
+    } else {
+      // Deselect exclusive and re-enable all if present
+      if (q.exclusive) {
+        const card = btn.closest('.q-card');
+        card.querySelectorAll('.check-btn').forEach(b => {
+          if (b.dataset.val === q.exclusive) {
+            b.classList.remove('selected');
+            answers[qId] = answers[qId].filter(v => v !== q.exclusive);
+          }
+          b.classList.remove('disabled');
+        });
+      }
+      // Check max
+      if (q.max && answers[qId].length >= q.max) {
+        btn.closest('.q-card').classList.add('error-shake');
+        setTimeout(() => btn.closest('.q-card').classList.remove('error-shake'), 350);
+        return;
+      }
+      btn.classList.add('selected');
+      answers[qId].push(val);
+    }
+  }
+
+  // Update disable state for max-selection
+  if (q.max && !isExclusive) {
+    const atMax = answers[qId].length >= q.max;
+    btn.closest('.q-card').querySelectorAll('.check-btn').forEach(b => {
+      if (!b.classList.contains('selected') && b.dataset.val !== q.exclusive) {
+        b.classList.toggle('disabled', atMax);
+      } else {
+        b.classList.remove('disabled');
+      }
+    });
+  }
+
+  // Update counts
+  if (qId === 'c4') {
+    document.getElementById('c4-count').textContent = answers.c4 ? answers.c4.length : 0;
+    rebuildC4b(); // Rebuild C4b excluding C4 selections
+  }
+  if (qId === 'c6') document.getElementById('c6-count').textContent = answers.c6 ? answers.c6.length : 0;
+  if (qId === 'ba5') document.getElementById('ba5-count').textContent = answers.ba5 ? answers.ba5.length : 0;
+
+  const card = btn.closest('.q-card');
+  card.classList.toggle('answered', answers[qId] && answers[qId].length > 0);
+  card.classList.remove('error-shake');
+}
+
+// ===== C4b: REBUILD EXCLUDING C4 SELECTIONS =====
+let c4bRevealed = false;
+
+function rebuildC4b() {
+  const c4Selected = answers.c4 || [];
+  const c4Order = randomisedOrders.c4 || Q.c4.options;
+  const remaining = c4Order.filter(opt => !c4Selected.includes(opt));
+
+  const confirmRow = document.getElementById('c4-confirm-row');
+  const block = document.getElementById('c4b-block');
+
+  if (c4Selected.length === 0 || remaining.length === 0) {
+    // Nothing selected yet or no remaining — hide everything
+    confirmRow.style.display = 'none';
+    block.classList.remove('revealed');
+    c4bRevealed = false;
+    answers.c4b = undefined;
+    return;
+  }
+
+  // If C4b hasn't been revealed yet, show the confirm button instead
+  if (!c4bRevealed) {
+    confirmRow.style.display = 'block';
+    block.classList.remove('revealed');
+  } else {
+    // Already revealed — keep it visible
+    confirmRow.style.display = 'none';
+    block.classList.add('revealed');
+  }
+
+  // Clear c4b if previous selection is now in c4
+  if (answers.c4b && c4Selected.includes(answers.c4b)) {
+    answers.c4b = undefined;
+    const card = document.getElementById('qcard-c4b');
+    if (card) card.classList.remove('answered');
+  }
+
+  // Rebuild buttons
+  const container = document.getElementById('opts-c4b');
+  container.innerHTML = remaining.map(opt => {
+    const isSelected = answers.c4b === opt;
+    return `<li><button class="option-btn${isSelected ? ' selected' : ''}" data-q="c4b" data-val="${escHtml(opt)}" onclick="selectRadio('c4b', this)">
+      <span class="radio-dot"></span>${escHtml(opt)}
+    </button></li>`;
+  }).join('');
+}
+
+function revealC4b() {
+  c4bRevealed = true;
+  document.getElementById('c4-confirm-row').style.display = 'none';
+  document.getElementById('c4b-block').classList.add('revealed');
+  // Smooth scroll to c4b
+  setTimeout(() => {
+    document.getElementById('c4b-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function setMatrix(mId, itemKey, value, el) {
+  if (!answers[mId]) answers[mId] = {};
+  answers[mId][itemKey] = value;
+  const radios = document.querySelectorAll(`input[name="mx-${mId}-${itemKey}"]`);
+  radios.forEach(r => { r.checked = (r.value === value); });
+  const mobileItem = document.getElementById(`mm-${mId}-${itemKey}`);
+  if (mobileItem) {
+    mobileItem.querySelectorAll('.mm-btn').forEach(b => {
+      b.classList.toggle('selected', b.textContent === value);
+    });
+  }
+  const row = document.getElementById(`mrow-${mId}-${itemKey}`);
+  if (row) row.classList.add('answered-row');
+  const allAnswered = matrixOrders[mId] && matrixOrders[mId].every(item => answers[mId] && answers[mId][item.key]);
+  const card = document.getElementById(`qcard-${mId}`);
+  if (card) card.classList.toggle('answered', allAnswered);
+}
+
+// ===== C2 → C3 PIPING =====
+function handleC2Change() {
+  const val = answers.c2;
+  if (!val) return;
+
+  let pipeLabel;
+  if (val.startsWith('Other: ')) {
+    // For custom text: use generic wording to avoid unwieldy piped text
+    pipeLabel = 'that type of experience';
+  } else {
+    pipeLabel = Q.c2.shortLabels[val] || val;
+  }
+
+  const pipeEl = document.getElementById('c3-pipe');
+  if (pipeEl) pipeEl.textContent = pipeLabel;
+  buildC3Options(pipeLabel);
+}
+
+function buildC3Options(pipeLabel) {
+  const isGeneric = (pipeLabel === 'that type of experience');
+  const lastOpt = isGeneric
+    ? 'I haven\'t done that in the past 12 months'
+    : `I haven't been to ${pipeLabel} in the past 12 months`;
+
+  const opts = [
+    'I still think about it regularly',
+    'It stayed with me for weeks',
+    'It stayed with me for a few days',
+    'I enjoyed it at the time but it faded quickly',
+    'It didn\'t leave much of an impression',
+    lastOpt
+  ];
+  const container = document.getElementById('opts-c3');
+  container.innerHTML = opts.map(opt => `
+    <li><button class="option-btn" data-q="c3" data-val="${escHtml(opt)}" onclick="selectRadio('c3', this)">
+      <span class="radio-dot"></span>${escHtml(opt)}
+    </button></li>
+  `).join('');
+}
+
+// ===== ROUTING =====
+function getNextScreen(fromScreen) {
+  if (fromScreen === 12) {
+    if (answers.c2 === 'None of these is particularly important to me') return 14;
+    return 13;
+  }
+  if (fromScreen === 18) {
+    if (answers.ba0 === 'Yes') return 19;
+    return 25;
+  }
+  if (fromScreen === 24) return 26;
+  if (fromScreen === 25) return 26;
+  return fromScreen + 1;
+}
+
+function goBack() {
+  if (history.length > 1) {
+    history.pop();
+    const prev = history[history.length - 1];
+    goToScreen(prev, true);
+  }
+}
+
+// ===== VALIDATION =====
+function isValidRadio(val) { return val && val !== '__other_pending__'; }
+function isValidMulti(qId) { return answers[qId] && answers[qId].length > 0; }
+
+function validateScreen(idx) {
+  switch(idx) {
+    case 1: {
+      const pid = document.getElementById('prolific-input').value.trim();
+      if (!pid) return false;
+      answers.prolific_id = pid;
+      return true;
+    }
+    case 2: return isValidRadio(answers.d1);
+    case 3: return isValidRadio(answers.d2);
+    case 4: return isValidRadio(answers.e1);
+    case 5: return isValidRadio(answers.e2);
+    case 6: return isValidMulti('e3');
+    case 7: return isValidRadio(answers.e4);
+    case 8: return isValidRadio(answers.e5);
+    case 9: return isValidRadio(answers.e6);
+    case 10: return isValidRadio(answers.e7);
+    case 11: {
+      if (!answers.c1) return false;
+      return matrixOrders.c1 && matrixOrders.c1.every(item => answers.c1[item.key]);
+    }
+    case 12: return isValidRadio(answers.c2);
+    case 13: return isValidRadio(answers.c3);
+    case 14: {
+      if (!isValidMulti('c4')) return false;
+      return isValidRadio(answers.c4b);
+    }
+    case 15: return isValidRadio(answers.c5);
+    case 16: return isValidMulti('c6');
+    case 17: return isValidMulti('c7');
+    case 18: return isValidRadio(answers.ba0);
+    case 19: return isValidRadio(answers.ba1);
+    case 20: return isValidRadio(answers.ba2);
+    case 21: return isValidRadio(answers.ba3);
+    case 22: return isValidMulti('ba4');
+    case 23: return isValidMulti('ba5');
+    case 24: return isValidRadio(answers.ba6);
+    case 25: return isValidRadio(answers.bh1);
+    case 26: return isValidRadio(answers.l1);
+    case 27: return isValidRadio(answers.l2);
+    case 28: return isValidRadio(answers.l3);
+    case 29: {
+      if (!answers.f1) return false;
+      return matrixOrders.f1 && matrixOrders.f1.every(item => answers.f1[item.key]);
+    }
+    case 30: {
+      const txt = document.getElementById('f2-text');
+      if (txt && txt.value.trim()) answers.f2 = txt.value.trim();
+      return true;
+    }
+    default: return true;
+  }
+}
+
+function tryAdvance(fromScreen) {
+  const valMsg = document.getElementById(`val-${fromScreen}`);
+  if (!validateScreen(fromScreen)) {
+    if (valMsg) valMsg.classList.add('show');
+    const screenEl = document.getElementById(`screen-${fromScreen}`);
+    screenEl.querySelectorAll('.q-card:not(.answered)').forEach(card => {
+      card.classList.add('error-shake');
+      setTimeout(() => card.classList.remove('error-shake'), 350);
+    });
+    return;
+  }
+  if (valMsg) valMsg.classList.remove('show');
+  submitData();
+  const next = getNextScreen(fromScreen);
+  if (next === 13) handleC2Change();
+  goToScreen(next);
+}
+
+// ===== NAVIGATION =====
+function goToScreen(idx, isBack) {
+  if (idx === 1 && !startTime) startTime = Date.now();
+  if (!isBack) {
+    if (history[history.length - 1] !== idx) history.push(idx);
+  }
+  const cur = document.getElementById(`screen-${currentScreen}`);
+  cur.classList.remove('visible');
+
+  setTimeout(() => {
+    cur.classList.remove('active');
+    currentScreen = idx;
+    const nxt = document.getElementById(`screen-${idx}`);
+    nxt.classList.add('active');
+    void nxt.offsetWidth;
+    nxt.classList.add('visible');
+
+    // Reset fallback continue buttons
+    nxt.querySelectorAll('.btn-continue-fallback').forEach(b => b.classList.remove('show'));
+
+    updateProgress(idx);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (idx === 31) setTimeout(launchConfetti, 400);
+  }, isBack ? 120 : 180);
+}
+
+function updateProgress(idx) {
+  let progress = 0;
+  if (idx === 0) progress = 0;
+  else if (idx === 31) progress = 100;
+  else {
+    const isPath4A = answers.ba0 === 'Yes';
+    const totalContent = isPath4A ? 27 : 22;
+    let pos = idx;
+    if (idx >= 26 && !isPath4A) pos = idx - 6;
+    else if (idx >= 26 && isPath4A) pos = idx - 1;
+    progress = Math.min(Math.round((pos / totalContent) * 100), 99);
+  }
+  document.getElementById('progressBar').style.width = progress + '%';
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', function(e) {
+  if (currentScreen === 0 || currentScreen === 31) return;
+  // Enter key on Prolific ID screen
+  if (currentScreen === 1 && e.key === 'Enter') { tryAdvance(1); return; }
+
+  const screenQId = AUTO_SCREENS[currentScreen];
+  if (!screenQId) return;
+  const num = parseInt(e.key);
+  if (isNaN(num) || num < 1) return;
+  const container = document.getElementById(`opts-${screenQId}`);
+  if (!container) return;
+  const buttons = container.querySelectorAll('.option-btn');
+  if (num <= buttons.length) buttons[num - 1].click();
+});
+
+// ===== DATA SUBMISSION =====
+function buildPayload() {
+  const clean = (val) => (val && val !== '__other_pending__') ? val : '';
+  return {
+    sessionId, startTime,
+    endTime: currentScreen >= 30 ? Date.now() : null,
+    totalSeconds: startTime ? Math.round((Date.now() - startTime) / 1000) : null,
+    currentScreen,
+    prolific_id: answers.prolific_id || '',
+    d1_income: clean(answers.d1),
+    d2_household: clean(answers.d2),
+    e1_happiest_memory: clean(answers.e1),
+    e2_spending_pref: clean(answers.e2),
+    e3_essentials: (answers.e3 || []).join(' | '),
+    e4_sacrifice: clean(answers.e4),
+    e5_screen_break: clean(answers.e5),
+    e6_missing: clean(answers.e6),
+    e7_ai_value: clean(answers.e7),
+    c1_live_music: answers.c1 ? answers.c1.live_music || '' : '',
+    c1_live_sport: answers.c1 ? answers.c1.live_sport || '' : '',
+    c1_holiday: answers.c1 ? answers.c1.holiday || '' : '',
+    c1_theatre: answers.c1 ? answers.c1.theatre || '' : '',
+    c1_food_drink: answers.c1 ? answers.c1.food_drink || '' : '',
+    c1_museum: answers.c1 ? answers.c1.museum || '' : '',
+    c1_cinema: answers.c1 ? answers.c1.cinema || '' : '',
+    c2_most_important: clean(answers.c2),
+    c3_impression: clean(answers.c3),
+    c4_top3: (answers.c4 || []).join(' | '),
+    c4b_least: clean(answers.c4b),
+    c5_live_vs_stream: clean(answers.c5),
+    c6_barriers: (answers.c6 || []).join(' | '),
+    c7_cost_mgmt: (answers.c7 || []).join(' | '),
+    ba0_participated: clean(answers.ba0),
+    ba1_event_type: clean(answers.ba1),
+    ba2_brand_awareness: clean(answers.ba2),
+    ba3_brand_sentiment: clean(answers.ba3),
+    ba4_actions: (answers.ba4 || []).join(' | '),
+    ba5_best_thing: (answers.ba5 || []).join(' | '),
+    ba6_instore: clean(answers.ba6),
+    bh1_hypothetical: clean(answers.bh1),
+    l1_loneliness: clean(answers.l1),
+    l2_connection: clean(answers.l2),
+    l3_solo: clean(answers.l3),
+    f1_live_music: answers.f1 ? answers.f1.live_music || '' : '',
+    f1_live_sport: answers.f1 ? answers.f1.live_sport || '' : '',
+    f1_holidays: answers.f1 ? answers.f1.holidays || '' : '',
+    f1_food_drink: answers.f1 ? answers.f1.food_drink || '' : '',
+    f1_theatre: answers.f1 ? answers.f1.theatre || '' : '',
+    f2_open_text: answers.f2 || ''
+  };
+}
+
+function submitData() {
+  const payload = buildPayload();
+  console.log('=== CXI DATA ===', JSON.stringify(payload, null, 2));
+  if (SHEETS_URL) {
+    fetch(SHEETS_URL, {
+      method: 'POST', mode: 'no-cors',
+      body: JSON.stringify(payload)
+    }).then(() => console.log('Data submitted'))
+    .catch(err => console.warn('Submit failed:', err));
+  }
+}
+
+// ===== CONFETTI =====
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colours = ['#E85D75', '#F4A261', '#2EC4B6', '#1A1F36', '#FFE66D', '#6C63FF', '#FF8C42'];
+  const pieces = [];
+  for (let i = 0; i < 100; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width, y: Math.random() * canvas.height * -1.2,
+      w: Math.random() * 8 + 4, h: Math.random() * 4 + 2,
+      colour: colours[Math.floor(Math.random() * colours.length)],
+      vx: (Math.random() - 0.5) * 3, vy: Math.random() * 3 + 2,
+      rot: Math.random() * 360, rotV: (Math.random() - 0.5) * 8, opacity: 1
+    });
+  }
+  let frame = 0; const maxFrames = 180;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); frame++;
+    const fadeStart = maxFrames * 0.6;
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.04; p.rot += p.rotV; p.vx *= 0.99;
+      if (frame > fadeStart) p.opacity = Math.max(0, 1 - (frame - fadeStart) / (maxFrames - fadeStart));
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+      ctx.globalAlpha = p.opacity; ctx.fillStyle = p.colour;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore();
+    });
+    if (frame < maxFrames) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+// ===== INIT =====
+function init() {
+  ['d1','d2','e1','e2','e4','e5','e6','e7','c2','c5',
+   'ba0','ba1','ba2','ba3','ba6','bh1','l1','l2','l3'].forEach(qId => {
+    buildRadioOptions(qId, `opts-${qId}`);
+  });
+  ['e3','c4','c6','c7','ba4','ba5'].forEach(qId => {
+    buildMultiOptions(qId, `opts-${qId}`);
+  });
+  buildC3Options('your chosen type');
+  rebuildC4b();
+  buildMatrix('c1', 'matrix-c1-desktop', 'matrix-c1-mobile');
+  buildMatrix('f1', 'matrix-f1-desktop', 'matrix-f1-mobile');
+  setTimeout(() => document.getElementById('screen-0').classList.add('visible'), 50);
+  console.log('CXI Survey initialized | Session:', sessionId);
+}
+
+init();
+</script>
+</body>
+</html>
