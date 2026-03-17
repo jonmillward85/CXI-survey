@@ -1430,6 +1430,7 @@ function updateOtherRadio(qId) {
       answers[qId] = 'Other: ' + val;
       const card = input.closest('.q-card');
       if (card) card.classList.add('answered');
+      showFallbackContinue(qId);
     } else {
       answers[qId] = '__other_pending__';
       const card = input.closest('.q-card');
@@ -1742,8 +1743,15 @@ function goToScreen(idx, isBack) {
     void nxt.offsetWidth;
     nxt.classList.add('visible');
 
-    // Reset fallback continue buttons
+    // Reset fallback continue buttons — then restore if Other is active
     nxt.querySelectorAll('.btn-continue-fallback').forEach(b => b.classList.remove('show'));
+    if (isBack) {
+      // If returning to an auto-advance screen where "Other" was active, show Continue
+      const otherInput = nxt.querySelector('.other-input.show');
+      if (otherInput) {
+        nxt.querySelectorAll('.btn-continue-fallback').forEach(b => b.classList.add('show'));
+      }
+    }
 
     updateProgress(idx);
     window.scrollTo({ top: 0, behavior: 'smooth' });
