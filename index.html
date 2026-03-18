@@ -160,6 +160,20 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
 .q-hint {
   font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; line-height: 1.5;
 }
+.q-hint-multi {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.88rem; font-weight: 700; color: var(--teal);
+  background: var(--teal-light); border: 1.5px solid var(--teal);
+  padding: 7px 14px; border-radius: 8px; margin-bottom: 14px;
+  line-height: 1.4;
+}
+.q-hint-multi .hint-icon {
+  font-size: 1rem; flex-shrink: 0;
+}
+.q-hint-multi .hint-counter {
+  font-weight: 600; color: var(--muted); font-size: 0.82rem;
+  margin-left: 2px;
+}
 
 /* Radio options */
 .option-list { list-style: none; padding: 0; }
@@ -537,7 +551,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
     <div class="step-pill">Section 2 of 6 &mdash; How You Feel About Experiences</div>
     <div class="q-card" id="qcard-e3">
       <div class="q-label">Which of the following, if any, do you personally consider <span class="keyword">essential</span> to your quality of life &mdash; not just nice to have, but something you'd <span class="keyword">genuinely miss</span>?</div>
-      <div class="q-hint">Tick all that apply</div>
+      <div class="q-hint-multi"><span class="hint-icon">☑</span> You can choose more than one</div>
       <ul class="option-list" id="opts-e3"></ul>
     </div>
     <div class="nav-row">
@@ -659,7 +673,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
     <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
     <div class="q-card" id="qcard-c4">
       <div class="q-label">When you think about what makes going out to a live event or experience worthwhile, which of these matter <span class="keyword">most</span> to you?</div>
-      <div class="q-hint">Pick up to <strong>3</strong> &mdash; <span id="c4-count">0</span> of 3 selected</div>
+      <div class="q-hint-multi"><span class="hint-icon">☑</span> You can choose up to 3 <span class="hint-counter">&mdash; <span id="c4-count">0</span> of 3 selected</span></div>
       <ul class="option-list" id="opts-c4"></ul>
     </div>
 
@@ -703,7 +717,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
     <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
     <div class="q-card" id="qcard-c6">
       <div class="q-label">What, if anything, <span class="keyword">stops you</span> from going to more live events and experiences?</div>
-      <div class="q-hint">Pick up to <strong>3</strong> &mdash; <span id="c6-count">0</span> of 3 selected</div>
+      <div class="q-hint-multi"><span class="hint-icon">☑</span> You can choose up to 3 <span class="hint-counter">&mdash; <span id="c6-count">0</span> of 3 selected</span></div>
       <ul class="option-list" id="opts-c6"></ul>
     </div>
     <div class="nav-row">
@@ -718,7 +732,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
     <div class="step-pill">Section 3 of 6 &mdash; What You Do &amp; Value</div>
     <div class="q-card" id="qcard-c7">
       <div class="q-label">In the past 12 months, have you done any of the following to manage the cost of live events and experiences?</div>
-      <div class="q-hint">Tick all that apply</div>
+      <div class="q-hint-multi"><span class="hint-icon">☑</span> You can choose more than one</div>
       <ul class="option-list" id="opts-c7"></ul>
     </div>
     <div class="nav-row">
@@ -802,7 +816,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
     <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
     <div class="q-card" id="qcard-ba4">
       <div class="q-label">As a result of that brand experience, did you do any of the following?</div>
-      <div class="q-hint">Tick all that apply</div>
+      <div class="q-hint-multi"><span class="hint-icon">☑</span> You can choose more than one</div>
       <ul class="option-list" id="opts-ba4"></ul>
     </div>
     <div class="nav-row">
@@ -817,7 +831,7 @@ h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--prim
     <div class="step-pill">Section 4 of 6 &mdash; Your Brand Experience</div>
     <div class="q-card" id="qcard-ba5">
       <div class="q-label">What, if anything, was the best thing about the brand experience?</div>
-      <div class="q-hint">Pick up to <strong>2</strong> &mdash; <span id="ba5-count">0</span> of 2 selected</div>
+      <div class="q-hint-multi"><span class="hint-icon">☑</span> You can choose up to 2 <span class="hint-counter">&mdash; <span id="ba5-count">0</span> of 2 selected</span></div>
       <ul class="option-list" id="opts-ba5"></ul>
     </div>
     <div class="nav-row">
