@@ -1412,6 +1412,34 @@ function selectRadio(qId, btn, isOther) {
   }
 
   if (qId === 'c2') handleC2Change();
+
+  // Clear stale answers from skipped paths when gate questions change
+  if (qId === 'ba0') clearStaleBranchAnswers();
+  if (qId === 'c2') clearStaleC3();
+}
+
+// When BA0 changes, wipe answers from the branch NOT being taken
+function clearStaleBranchAnswers() {
+  const val = answers.ba0;
+  if (val === 'Yes') {
+    // Taking path 4A — clear 4B answer
+    delete answers.bh1;
+  } else {
+    // Taking path 4B (No / Not sure) — clear all 4A answers
+    delete answers.ba1;
+    delete answers.ba2;
+    delete answers.ba3;
+    delete answers.ba4;
+    delete answers.ba5;
+    delete answers.ba6;
+  }
+}
+
+// When C2 changes to "None", wipe C3 since it will be skipped
+function clearStaleC3() {
+  if (answers.c2 === 'None of these is particularly important to me') {
+    delete answers.c3;
+  }
 }
 
 function showFallbackContinue(qId) {
